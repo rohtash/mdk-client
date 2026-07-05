@@ -1,0 +1,37 @@
+name: Build MDK Custom Client
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Install NativeScript CLI
+      run: npm install -g nativescript
+
+    - name: Setup Java JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+
+
+    - name: Run Headless MDK Client Generation
+      run: |
+        chmod +x ./MDK_SDK/create-client.command
+        ./MDK_SDK/create-client.command --project ./MDKProject --platform android --release
+
+    - name: Build Production APK
+      run: |
+        cd MDKClient_SDK
+        ns build android --release
